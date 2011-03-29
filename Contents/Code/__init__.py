@@ -1,9 +1,4 @@
 import re, string, urllib
-from PMS import *
-from PMS import RSS # as RSS
-from PMS.Objects import *
-from PMS.Shortcuts import *
-from BeautifulSoup import BeautifulStoneSoup as BSS
 
 MIRO_PREFIX       = "/video/miro"
 CACHE_INTERVAL    = 1800
@@ -58,9 +53,7 @@ def GetDirectory(sender, title2, filter, filter_value, sort='', limit='100'):
   if limit != '':
     url += '&limit=' + limit
 
-  JSONresults = HTTP.Request(url.replace(' ','+'), cacheTime=0)
-  Log(JSONresults)  
-  results = JSON.ObjectFromString(JSONresults)
+  results = JSON.ObjectFromURL(url.replace(' ','+'), cacheTime=0)
   for entry in results:
     title = entry['name']
     subtitle = entry['publisher']
@@ -73,7 +66,7 @@ def GetDirectory(sender, title2, filter, filter_value, sort='', limit='100'):
 
 def GetMiroFeed(sender, feedUrl, title2='', folderthumb='', query=''):
   dir = MediaContainer(viewGroup='Details', title2=title2)
-  feedHtml = HTTP.Request(feedUrl + query.replace(' ', '+'), errors='ignore').encode('utf-8','ignore')
+  feedHtml = HTTP.Request(feedUrl + query.replace(' ', '+'), errors='ignore').content.encode('utf-8','ignore')
   feed = RSS.FeedFromString(feedHtml)
   #Log(feed)
   for item in feed['items']:
@@ -91,7 +84,7 @@ def GetMiroFeed(sender, feedUrl, title2='', folderthumb='', query=''):
     except:
       date = ''
     subtitle = date
-    soup = BSS(StripTags(item.description), convertEntities=BSS.HTML_ENTITIES) 
+    soup = StripTags(item.description)#, convertEntities=BSS.HTML_ENTITIES
     try:
       summary = soup.contents[0]
     except:
@@ -107,7 +100,7 @@ def GetMiroFeed(sender, feedUrl, title2='', folderthumb='', query=''):
 
 def GetFeed(sender, feedUrl, title2="", folderthumb=""):
   dir = MediaContainer(viewGroup='Details', title2=title2)
-  feedHtml = HTTP.Request(urllib.unquote(feedUrl), errors='ignore').encode('utf-8','ignore')
+  feedHtml = HTTP.Request(urllib.unquote(feedUrl), errors='ignore').content.encode('utf-8','ignore')
   feed = RSS.FeedFromString(feedHtml)
   #Log(feed)
   for item in feed['items']:
@@ -132,7 +125,7 @@ def GetFeed(sender, feedUrl, title2="", folderthumb=""):
     except:
       date = ''
     subtitle = date
-    soup = BSS(StripTags(item.description), convertEntities=BSS.HTML_ENTITIES) 
+    soup = StripTags(item.description)#, convertEntities=BSS.HTML_ENTITIES
     try:
       summary = soup.contents[0]
     except:
