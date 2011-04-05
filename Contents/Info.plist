@@ -36,7 +36,5 @@
 	<array>
 		<string>Assorted</string>
 	</array>
-	<key>PlexPluginConsoleLogging</key>
-	<string>1</string>
 </dict>
 </plist>
