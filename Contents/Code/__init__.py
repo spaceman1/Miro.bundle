@@ -27,8 +27,8 @@ def MainMenu():
 	dir = MediaContainer()
 	#dir.Append(Function(DirectoryItem(GetVideosRSS,     title="Staff Picks", thumb=R('staffpicks.png')), name='channels/staffpicks', title2='Staff Picks'))
 	#dir.Append(Function(DirectoryItem(FeaturedChannels, title="Featured Channels", thumb=R('featured.png'))))  
-	dir.Append(Function(DirectoryItem(Categories, title=L("Categories")), filter='categories'))
-	dir.Append(Function(DirectoryItem(Categories, title=L("Languages")), filter='languages'))
+	dir.Append(Function(DirectoryItem(Categories, title=L("Categories"))))
+	dir.Append(Function(DirectoryItem(Languages, title=L("Languages"))))
 	dir.Append(Function(DirectoryItem(GetMiroFeed, title=L("New Channels")), feedUrl='http://feeds.feedburner.com/miroguide/new'))
 	dir.Append(Function(DirectoryItem(GetMiroFeed, title=L("Featured Channels")), feedUrl='http://feeds.feedburner.com/miroguide/featured'))
 	dir.Append(Function(DirectoryItem(GetMiroFeed, title=L("Popular Channels")), feedUrl='http://feeds.feedburner.com/miroguide/popular'))
@@ -38,18 +38,20 @@ def MainMenu():
 	return dir
 	
 ####################################################################################################
-def Categories(sender, filter='categories', sort='popular'):
+def Categories(sender, sort='popular'):
 	dir = MediaContainer(viewGroup='Details', title2=sender.itemTitle)
-	categories = JSON.ObjectFromURL('https://www.miroguide.com/api/list_%s?datatype=json' % filter)
+	categories = JSON.ObjectFromURL('https://www.miroguide.com/api/list_categories?datatype=json')
 	for category in categories:
 		title = category['name']
-		if filter == 'categories':
-			filter = 'category'
-		elif filter == 'languages':
-			filter = 'language'
-		dir.Append(Function(DirectoryItem(GetDirectory, title=title), filter=filter, filter_value=urllib.quote(title), title2=title, sort=sort))
+		dir.Append(Function(DirectoryItem(GetDirectory, title=title), filter='category', filter_value=urllib.quote(title), title2=title, sort=sort))
 	return dir
-	
+
+def Languages(sender, sort='popular'):
+	dir = MediaContainer(viewGroup='Details', title2=sender.itemTitle)
+	for item in HTML.ElementFromURL('http://miroguide.com/languages/').xpath('//ul[@class="group-list"]/li/a'):
+		title = item.text
+		dir.Append(Function(DirectoryItem(GetDirectory, title=title), filter='language', filter_value=urllib.quote(title), title2=title, sort=sort))
+	return dir
 ####################################################################################################
 def GetDirectory(sender, title2, filter, filter_value, sort='', limit='50'):
 	dir = MediaContainer(viewGroup='Details', title2=title2)
