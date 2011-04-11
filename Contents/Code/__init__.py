@@ -105,6 +105,7 @@ def GetMiroFeed(sender, feedUrl, title2='', folderthumb='', query=''):
 		feedUrl = item["summary_detail"]["value"].replace('amp;','')
 		feedUrl = feedUrl[feedUrl.find('url1=')+5:]
 		feedUrl = feedUrl[:feedUrl.find('&trackback1')].replace('%3A',':')
+		feddUrl = feedUrl.replace(' ', '%20')
 		#Log(feedUrl)
 
 		dir.Append(Function(DirectoryItem(GetFeed, title=title, subtitle=subtitle, thumb=thumb, summary=summary), title2=title, feedUrl=feedUrl, folderthumb=thumb))
