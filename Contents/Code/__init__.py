@@ -115,13 +115,15 @@ def GetFeed(sender, feedUrl, title2="", folderthumb=""):
 	dir = MediaContainer(viewGroup='Details', title2=title2)
 	youTubeCookies = HTTP.GetCookiesForURL('http://www.youtube.com/')
 	dir.httpCookies = youTubeCookies
+	#Log(feedUrl)
 	feedHtml = HTTP.Request(urllib.unquote(feedUrl), errors='ignore').content
 	encoding = re.search(r"encoding=([\"'])([^\1]*?)\1", feedHtml).group(2) #'
 	feedHtml = feedHtml.decode(encoding, 'ignore').encode('utf-8')
 
 	feed = RSS.FeedFromString(feedHtml)
-	#Log(feed)
-	for item in feed['items']:
+	items = feed['items'] if ('items' in feed) else feed['entries']
+	hasInvalidItems = False
+	for item in items:
 		#Log(item)
 		duration = ''
 		title = item.title.replace('&#39;',"'").replace('&amp;','&')
@@ -168,9 +170,11 @@ def GetFeed(sender, feedUrl, title2="", folderthumb=""):
 			key = item.link
 		#Log(key)
 		if key.count('.torrent') > 0:
+			hasInvalidItems = True
 			#insert message box re: not supporting torrents here.
-			break
+			continue
 		if key.count('.html') > 0:
+			hasInvalidItems = True
 			continue
 		if key.count('youtube') > 0:
 			if key.count('watch') == 0:
@@ -181,6 +185,8 @@ def GetFeed(sender, feedUrl, title2="", folderthumb=""):
 			if thumb == '':
 				thumb = folderthumb
 			dir.Append(VideoItem(key, title, date, summary, thumb=thumb))
+	if len(dir) == 0 and hasInvalidItems:
+		return MessageContainer('Invalid items', 'No supported media types found.')
 	return dir
 
 ####################################################################################################
