@@ -12,7 +12,7 @@ def Start():
 	MediaContainer.title1 = 'Miro'
 	MediaContainer.content = 'Items'
 	MediaContainer.art = R('art-default.png')
-	HTTP.SetCacheTime(CACHE_INTERVAL)
+	HTTP.CacheTime = CACHE_INTERVAL
 	DirectoryItem.thumb = R('icon-default.png')
 	VideoItem.thumb = R('icon-default.png')
 ####################################################################################################
@@ -108,7 +108,7 @@ def GetMiroFeed(sender, feedUrl, title2='', folderthumb='', query=''):
 def GetFeed(sender, feedUrl, title2="", folderthumb=""):
 	dir = MediaContainer(viewGroup='Details', title2=title2)
 	feedHtml = HTTP.Request(urllib.unquote(feedUrl), errors='ignore').content
-	encoding = feedHtml.split('encoding="')[1].split('"')[0]
+	encoding = re.search(r"encoding=([\"'])([^\1]*?)\1", feedHtml).group(2) #'
 	feedHtml = feedHtml.decode(encoding, 'ignore').encode('utf-8')
 
 	feed = RSS.FeedFromString(feedHtml)
