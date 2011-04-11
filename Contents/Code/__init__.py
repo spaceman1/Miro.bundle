@@ -116,7 +116,7 @@ def GetFeed(sender, feedUrl, title2="", folderthumb=""):
 	youTubeCookies = HTTP.GetCookiesForURL('http://www.youtube.com/')
 	dir.httpCookies = youTubeCookies
 	#Log(feedUrl)
-	feedHtml = HTTP.Request(urllib.unquote(feedUrl), errors='ignore').content
+	feedHtml = HTTP.Request(feedUrl, errors='ignore').content
 	encoding = re.search(r"encoding=([\"'])([^\1]*?)\1", feedHtml).group(2) #'
 	feedHtml = feedHtml.decode(encoding, 'ignore').encode('utf-8')
 
@@ -126,7 +126,7 @@ def GetFeed(sender, feedUrl, title2="", folderthumb=""):
 	for item in items:
 		#Log(item)
 		duration = ''
-		title = item.title.replace('&#39;',"'").replace('&amp;','&')
+		title = StripTags(item.title.replace('&#39;',"'").replace('&amp;','&'))
 		if isinstance(title, str): # BAD: Not true for Unicode strings!
 			try:
 				title = title.encode('utf-8','replace') #.encode('utf-8')
