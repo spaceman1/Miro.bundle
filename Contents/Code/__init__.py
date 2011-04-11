@@ -5,6 +5,9 @@ CACHE_INTERVAL    = 1800
 MIRO_URL          = 'http://www.miroguide.com/'
 MIRO_API          = 'https://www.miroguide.com/api/'
 
+YOUTUBE_VIDEO_FORMATS = ['Standard', 'Medium', 'High', '720p', '1080p']
+YOUTUBE_FMT = [34, 18, 35, 22, 37]
+
 ####################################################################################################
 def Start():
 	Plugin.AddPrefixHandler(MIRO_PREFIX, MainMenu, 'Miro Guide', 'icon-default.png', 'art-default.png')
@@ -48,7 +51,7 @@ def Categories(sender, filter='categories', sort='popular'):
 	return dir
 	
 ####################################################################################################
-def GetDirectory(sender, title2, filter, filter_value, sort='', limit='100'):
+def GetDirectory(sender, title2, filter, filter_value, sort='', limit='50'):
 	dir = MediaContainer(viewGroup='Details', title2=title2)
 	url = MIRO_API + 'get_channels?datatype=json&filter=%s&filter_value=%s&sort=%s' % (filter, filter_value, sort)
 	if limit != '':
@@ -107,6 +110,8 @@ def GetMiroFeed(sender, feedUrl, title2='', folderthumb='', query=''):
 
 def GetFeed(sender, feedUrl, title2="", folderthumb=""):
 	dir = MediaContainer(viewGroup='Details', title2=title2)
+	youTubeCookies = HTTP.GetCookiesForURL('http://www.youtube.com/')
+	dir.httpCookies = youTubeCookies
 	feedHtml = HTTP.Request(urllib.unquote(feedUrl), errors='ignore').content
 	encoding = re.search(r"encoding=([\"'])([^\1]*?)\1", feedHtml).group(2) #'
 	feedHtml = feedHtml.decode(encoding, 'ignore').encode('utf-8')
@@ -182,15 +187,30 @@ def StripTags(str):
 
 ####################################################################################################
 def PlayYouTubeVideo(sender, id):
-	ytPage = HTTP.Request(id)
-	tStart = ytPage.find("&t=") + 3
-	t = ytPage[tStart:tStart+ytPage[tStart:].find("&")]
-	tStart = ytPage.find("&video_id=") + 10
-	v = ytPage[tStart:tStart+ytPage[tStart:].find("&")]
-	if ytPage[ytPage.find("isHDAvailable = ") + 16:].startswith("true"):
-		fmt = "22"
+	yt_page = HTTP.Request(id).content
+	fmt_url_map = re.findall('"fmt_url_map".+?"([^"]+)', yt_page)[0]
+	fmt_url_map = fmt_url_map.replace('\/', '/').split(',')
+
+	fmts = []
+	fmts_info = {}
+
+	for f in fmt_url_map:
+		(fmt, url) = f.split('|')
+		fmts.append(fmt)
+		fmts_info[str(fmt)] = url
+
+	index = 0
+	if YOUTUBE_FMT[index] in fmts:
+		fmt = YOUTUBE_FMT[index]
 	else:
-		fmt = "18"
-	url = 'http://www.youtube.com/get_video?video_id=' + v + "&t=" + t + "&fmt=" + fmt
-	Log(url)
-	return Redirect(url.replace('%3D','=')) #the replace is to work around a framework bug
+		for i in reversed( range(0, index+1) ):
+			if str(YOUTUBE_FMT[i]) in fmts:
+				fmt = YOUTUBE_FMT[i]
+				break
+			else:
+				fmt = 5
+
+	url = fmts_info[str(fmt)]
+	url = url.replace('\\u0026', '&')
+	#Log(url)
+	return Redirect(url)
