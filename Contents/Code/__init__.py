@@ -24,14 +24,14 @@ def MainMenu():
 	dir = MediaContainer()
 	#dir.Append(Function(DirectoryItem(GetVideosRSS,     title="Staff Picks", thumb=R('staffpicks.png')), name='channels/staffpicks', title2='Staff Picks'))
 	#dir.Append(Function(DirectoryItem(FeaturedChannels, title="Featured Channels", thumb=R('featured.png'))))  
-	dir.Append(Function(DirectoryItem(Categories,        title=L("Categories")), filter='categories'))
-	dir.Append(Function(DirectoryItem(Categories,        title=L("Languages")), filter='languages'))
-	dir.Append(Function(DirectoryItem(GetMiroFeed,       title=L("New Channels")), feedUrl='http://feeds.feedburner.com/miroguide/new'))
-	dir.Append(Function(DirectoryItem(GetMiroFeed,       title=L("Featured Channels")), feedUrl='http://feeds.feedburner.com/miroguide/featured'))
-	dir.Append(Function(DirectoryItem(GetMiroFeed,       title=L("Popular Channels")), feedUrl='http://feeds.feedburner.com/miroguide/popular'))
-	dir.Append(Function(DirectoryItem(GetMiroFeed,       title=L("Top Rated Channels")), feedUrl='http://feeds.feedburner.com/miroguide/toprated'))
-	dir.Append(Function(DirectoryItem(GetMiroFeed,       title=L("HD Channels"), thumb=R('hd.png')), feedUrl='https://www.miroguide.com/rss/tags/HD'))
-	dir.Append(Function(SearchDirectoryItem(GetMiroFeed, title=L("Search for Feed..."), prompt=L("Search for Feed..."), thumb=R('search.png')), feedUrl='https://www.miroguide.com/rss/search/'))
+	dir.Append(Function(DirectoryItem(Categories, title=L("Categories")), filter='categories'))
+	dir.Append(Function(DirectoryItem(Categories, title=L("Languages")), filter='languages'))
+	dir.Append(Function(DirectoryItem(GetMiroFeed, title=L("New Channels")), feedUrl='http://feeds.feedburner.com/miroguide/new'))
+	dir.Append(Function(DirectoryItem(GetMiroFeed, title=L("Featured Channels")), feedUrl='http://feeds.feedburner.com/miroguide/featured'))
+	dir.Append(Function(DirectoryItem(GetMiroFeed, title=L("Popular Channels")), feedUrl='http://feeds.feedburner.com/miroguide/popular'))
+	dir.Append(Function(DirectoryItem(GetMiroFeed, title=L("Top Rated Channels")), feedUrl='http://feeds.feedburner.com/miroguide/toprated'))
+	dir.Append(Function(DirectoryItem(GetMiroFeed, title=L("HD Channels"), thumb=R('hd.png')), feedUrl='https://www.miroguide.com/rss/tags/HD'))
+	dir.Append(Function(InputDirectoryItem(GetMiroFeed, title=L("Search for Feed..."), prompt=L("Search for Feed..."), thumb=R('search.png')), feedUrl='https://www.miroguide.com/rss/search/'))
 	return dir
 	
 ####################################################################################################
@@ -44,7 +44,7 @@ def Categories(sender, filter='categories', sort='popular'):
 			filter = 'category'
 		elif filter == 'languages':
 			filter = 'language'
-		dir.Append(Function(DirectoryItem(GetDirectory, title=title), filter=filter, filter_value=title, title2=title, sort=sort))
+		dir.Append(Function(DirectoryItem(GetDirectory, title=title), filter=filter, filter_value=urllib.quote(title), title2=title, sort=sort))
 	return dir
 	
 ####################################################################################################
